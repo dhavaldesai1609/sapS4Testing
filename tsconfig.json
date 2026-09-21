@@ -12,10 +12,13 @@
     "rootDir": ".",
     "baseUrl": ".",
     "paths": {
+      "@ui5/*": ["src/ui5/*"],
+      "@fiori/*": ["src/fiori/*"],
       "@pages/*": ["src/pages/*"],
       "@fixtures/*": ["src/fixtures/*"],
       "@utils/*": ["src/utils/*"],
-      "@data/*": ["src/data/*"]
+      "@data/*": ["src/data/*"],
+      "@config/*": ["src/config/*"]
     }
   },
   "include": ["src/**/*", "tests/**/*", "playwright.config.ts"],

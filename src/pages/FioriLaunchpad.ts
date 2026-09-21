@@ -1,22 +1,29 @@
 import { Page } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { navigateToApp, waitForUI5Stable } from '../utils/ui5';
+import { FioriShell } from '../fiori/Shell';
+import { navigateToApp, navigateByIntent } from '../utils/navigation';
 
 export class FioriLaunchpad extends BasePage {
+  readonly shell: FioriShell;
+
   constructor(page: Page) {
     super(page);
+    this.shell = new FioriShell(page);
   }
 
   async openApp(appName: string) {
     await navigateToApp(this.page, appName);
   }
 
+  async openByIntent(semanticObject: string, action: string, params?: Record<string, string>) {
+    await navigateByIntent(this.page, semanticObject, action, params);
+  }
+
   async goHome() {
-    await waitForUI5Stable(this.page);
-    const home = this.page.locator('#shell-header-logo, [title="Home"], button[aria-label*="Home"]').first();
-    if (await home.isVisible().catch(() => false)) {
-      await home.click();
-      await waitForUI5Stable(this.page);
-    }
+    await this.shell.goHome();
+  }
+
+  async expectLoaded() {
+    await this.shell.expectLoaded();
   }
 }

@@ -1,10 +1,9 @@
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 import { BasePage } from '../BasePage';
+import { control } from '../../ui5/ControlProxy';
+import { waitForMessage } from '../../ui5/waits';
+import { logger } from '../../utils/logger';
 
-/**
- * Example Page Object for Manage Purchase Orders / Create Purchase Order
- * Adapt selectors to the exact tiles and controls in the Manitoba Hydro landscape.
- */
 export class PurchaseOrderPage extends BasePage {
   constructor(page: Page) {
     super(page);
@@ -15,33 +14,49 @@ export class PurchaseOrderPage extends BasePage {
     await this.fillField('Vendor', vendor);
     await this.fillField('Purchasing Organization', purchOrg);
     await this.fillField('Purchasing Group', purchGroup);
+    logger.step('PO header filled');
   }
 
   async addItem(material: string, quantity: string, plant?: string) {
     await this.waitReady();
-    const addBtn = this.page.getByRole('button', { name: /Add|Create|Insert/i }).first();
-    if (await addBtn.isVisible().catch(() => false)) {
-      await addBtn.click();
+    try {
+      const addBtn = await control(this.page, {
+        controlType: 'sap.m.Button',
+        properties: { text: /Add|Create|Insert/i },
+      });
+      await addBtn.press();
+    } catch {
+      await this.page.getByRole('button', { name: /Add|Create|Insert/i }).first().click();
       await this.waitReady();
     }
     await this.fillField('Material', material);
     await this.fillField('Quantity', quantity);
     if (plant) await this.fillField('Plant', plant);
+    logger.step('PO item added');
   }
 
   async save() {
     await this.waitReady();
-    await this.page.getByRole('button', { name: /Save|Create|Post/i }).first().click();
-    await this.waitReady();
+    try {
+      const saveBtn = await control(this.page, {
+        controlType: 'sap.m.Button',
+        properties: { text: /Save|Create|Post/i },
+      });
+      await saveBtn.press();
+    } catch {
+      await this.page.getByRole('button', { name: /Save|Create|Post/i }).first().click();
+      await this.waitReady();
+    }
+    logger.step('PO save pressed');
   }
 
   async getDocumentNumber(): Promise<string | null> {
-    const toast = this.page.locator('.sapMMessageToast, [class*="MessageToast"]');
-    if (await toast.isVisible({ timeout: 10_000 }).catch(() => false)) {
-      const text = await toast.innerText();
+    try {
+      const text = await waitForMessage(this.page, undefined, 15_000);
       const match = text.match(/\d{8,}/);
       return match ? match[0] : null;
+    } catch {
+      return null;
     }
-    return null;
   }
 }

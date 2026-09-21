@@ -1,14 +1,12 @@
-import { test, expect } from '@playwright/test';
-import { FioriLaunchpad } from '../../src/pages/FioriLaunchpad';
+import { test, expect } from '../../src/fixtures/sapFixtures';
 
-/**
- * @smoke @rtr
- * Placeholder for Post General Journal Entry (Fiori) or FB50/FB01.
- */
 test.describe('RTR – Record to Report', () => {
-  test('Navigate to Journal Entry app @smoke', async ({ page }) => {
-    const flp = new FioriLaunchpad(page);
-    await flp.openApp('Post General Journal Entries');
-    await expect(page.locator('.sapUshellAppTitle, [class*="ObjectPage"], h1, h2').first()).toBeVisible({ timeout: 30_000 });
+  test('Navigate to Journal Entry app @smoke', async ({ shell, navigateToApp, waitForUI5, page }) => {
+    await shell.expectLoaded();
+    await navigateToApp('Post General Journal Entries');
+    await waitForUI5({ waitForNetwork: true });
+    await expect(
+      page.locator('.sapUshellAppTitle, [class*="ObjectPage"], h1, h2').first()
+    ).toBeVisible({ timeout: 30_000 });
   });
 });
