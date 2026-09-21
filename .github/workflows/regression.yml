@@ -6,13 +6,18 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Suite to run (smoke | ptp | rtr | otc | htr | atr | all)'
+        required: false
+        default: 'smoke'
   schedule:
     - cron: '0 6 * * 1-5'
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,17 +28,32 @@ jobs:
         run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      - name: Run smoke tests
+      - name: Run tests
         env:
           SAP_BASE_URL: ${{ secrets.SAP_BASE_URL }}
           SAP_USERNAME: ${{ secrets.SAP_USERNAME }}
           SAP_PASSWORD: ${{ secrets.SAP_PASSWORD }}
+          SAP_LANDSCAPE: ${{ secrets.SAP_LANDSCAPE || 'qa' }}
           CI: true
-        run: npm run test:smoke
+          LOG_LEVEL: info
+        run: |
+          SUITE="${{ github.event.inputs.suite || 'smoke' }}"
+          case "$SUITE" in
+            smoke) npm run test:smoke ;;
+            ptp)   npm run test:ptp ;;
+            rtr)   npm run test:rtr ;;
+            otc)   npm run test:otc ;;
+            htr)   npm run test:htr ;;
+            atr)   npm run test:atr ;;
+            all)   npx playwright test ;;
+            *)     npm run test:smoke ;;
+          esac
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            results/
           retention-days: 14
