@@ -1,0 +1,32 @@
+{
+  "name": "sap-s4-testing",
+  "version": "1.0.0",
+  "description": "Scalable Playwright framework for SAP S/4HANA Fiori automated regression (RTR, OTC, PTP, HTR, ATR) – Manitoba Hydro",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:rtr": "playwright test tests/rtr",
+    "test:otc": "playwright test tests/otc",
+    "test:ptp": "playwright test tests/ptp",
+    "test:htr": "playwright test tests/htr",
+    "test:atr": "playwright test tests/atr",
+    "test:smoke": "playwright test --grep @smoke",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["sap", "s4hana", "fiori", "playwright", "regression", "ui5"],
+  "author": "QA Automation Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.0.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}
